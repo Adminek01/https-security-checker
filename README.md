@@ -26,6 +26,18 @@ The `https-security-checker` is a simple Python script designed to assess the se
    ```bash
    python https_security_checker.py
    ```
+(venv)(rootkali)-[~/https-security-checker]
+# chmod +x https-security-checker.py
+(venv)(rootkali)-[~/https-security-checker]
+# ./https-security-checker.py
+./https-security-checker.py: 1: import: not found
+./https-security-checker.py: 2: from: not found
+./https-security-checker.py: 3: import: not found
+./https-security-checker.py: 5: Syntax error: "(" unexpected
+(venv)(rootkali)-[~/https-security-checker]
+# python3 https-security-checker.py
+Enter the website URL:
+
 
 3. Enter the URL of the website when prompted.
 
