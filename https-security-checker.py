@@ -37,6 +37,9 @@ def check_https_security(url):
         # Sprawdzanie wycieków baz danych
         check_database_leaks(url)
 
+        # Sprawdzanie ataków brute force
+        check_brute_force_attack(url)
+
     else:
         print("[-] Website is not using HTTPS")
 
@@ -53,6 +56,23 @@ def check_dns_ip_leaks(url):
 def check_database_leaks(url):
     # Tutaj możesz umieścić kod do sprawdzania wycieków baz danych
     pass
+
+def check_brute_force_attack(url):
+    # Sprawdzanie formularza logowania i podejrzenie ataku brute force
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        login_form = soup.find('form', {'action': True, 'method': True})
+        if login_form:
+            print("[+] Login form found. Checking for potential brute force attack.")
+            # Tutaj możesz dodać kod sprawdzający potencjalne ataki brute force
+        else:
+            print("[+] No login form found on the page.")
+
+    except requests.exceptions.RequestException as e:
+        print(f"[-] Unable to check for brute force attack: {e}")
 
 if __name__ == "__main__":
     url = input("Enter the website URL: ")
