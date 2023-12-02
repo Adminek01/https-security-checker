@@ -34,6 +34,50 @@ The `https-security-checker` is a simple Python script designed to assess the se
 ```bash
 Enter the website URL: https://example.com
 ```
+if you have problems with pip install you need to do this
+
+
+
+1. Install `virtualenv` using the system package manager:
+
+   ```bash
+   sudo apt-get update
+   sudo apt-get install python3-virtualenv
+   ```
+
+2. Create a virtual environment:
+
+   ```bash
+   virtualenv venv
+   ```
+
+3. Activate the virtual environment:
+
+   ```bash
+   source venv/bin/activate
+   ```
+
+   If you are using a Windows system, the activation command is:
+
+   ```bash
+   .\venv\Scripts\activate
+   ```
+
+4. Now, you should see `(venv)` in your terminal prompt, indicating that you are in the virtual environment.
+
+5. Install the required packages using `pip`:
+
+   ```bash
+   pip install requests beautifulsoup4
+   ```
+
+Now you have a virtual environment with the necessary packages installed. You can run your Python script within this virtual environment. When you're done, you can deactivate the virtual environment using the command `deactivate`.
+
+```bash
+deactivate
+```
+
+Remember to activate the virtual environment (`source venv/bin/activate`) each time you want to use it and install packages specific to your project within that environment.
 
 ## Disclaimer
 
