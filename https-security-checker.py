@@ -1,8 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 import ssl
+import re
 
-def check_https_security(url):
+def check_website_security(url):
     ssl._create_default_https_context = ssl._create_unverified_context
 
     try:
@@ -40,6 +41,9 @@ def check_https_security(url):
         # Sprawdzanie ataków brute force
         check_brute_force_attack(url)
 
+        # Sprawdzanie podatności na SQL injection
+        check_sql_injection_vulnerability(url)
+
     else:
         print("[-] Website is not using HTTPS")
 
@@ -74,6 +78,17 @@ def check_brute_force_attack(url):
     except requests.exceptions.RequestException as e:
         print(f"[-] Unable to check for brute force attack: {e}")
 
+def check_sql_injection_vulnerability(url):
+    # Sprawdzanie podatności na SQL injection
+    try:
+        response = requests.get(url + "/?id=1' OR '1'='1'--")
+        if 'error' in response.text.lower() or 'exception' in response.text.lower():
+            print("[+] Possible SQL Injection Vulnerability detected.")
+        else:
+            print("[+] No SQL Injection Vulnerability found.")
+    except requests.exceptions.RequestException as e:
+        print(f"[-] Unable to check for SQL Injection Vulnerability: {e}")
+
 if __name__ == "__main__":
     url = input("Enter the website URL: ")
-    check_https_security(url)
+    check_website_security(url)
