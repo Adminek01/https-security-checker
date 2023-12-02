@@ -14,6 +14,7 @@ def check_https_security(url):
 
     if not response.history and response.url.startswith("https"):
         print("[+] Website is using HTTPS")
+        print_detailed_info(response)
 
         soup = BeautifulSoup(response.text, 'html.parser')
         meta_tags = soup.find_all('meta')
@@ -38,6 +39,12 @@ def check_https_security(url):
 
     else:
         print("[-] Website is not using HTTPS")
+
+def print_detailed_info(response):
+    print("[+] Detailed Information:")
+    print(f"    - Server: {response.headers.get('server', 'N/A')}")
+    print(f"    - SSL Certificate: {response.headers.get('x-powered-by', 'N/A')}")
+    print(f"    - Content Type: {response.headers.get('content-type', 'N/A')}")
 
 def check_dns_ip_leaks(url):
     # Tutaj możesz umieścić kod do sprawdzania wycieków DNS/IP
