@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import ssl
-import re
+from colorama import Fore, Style
 
 def check_website_security(url):
     ssl._create_default_https_context = ssl._create_unverified_context
@@ -90,5 +90,6 @@ def check_sql_injection_vulnerability(url):
         print(f"[-] Unable to check for SQL Injection Vulnerability: {e}")
 
 if __name__ == "__main__":
+    print(Fore.BLUE + "[+] This program has been created for educational purposes and security testing only." + Style.RESET_ALL)
     url = input("Enter the website URL: ")
     check_website_security(url)
