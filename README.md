@@ -1,7 +1,7 @@
 # https-security-checker
 
 
-Oczywiście, możemy dodać opis do programu `https-security-checker`. Oto przykładowy opis w formie README dla GitHub:
+
 
 ```markdown
 # HTTPS Security Checker
