@@ -9,6 +9,26 @@ import random
 import os
 from bs4 import BeautifulSoup
 import sys
+import pyglet
+
+# Sprawdzenie i ewentualna instalacja modułu pyglet
+try:
+    import pyglet
+except ImportError:
+    print("Brak modułu pyglet. Instalowanie...")
+    os.system("python -m pip install pyglet")
+
+# Sprawdzenie i ewentualna aktualizacja modułu pyglet
+try:
+    import pyglet
+    version_info = pyglet.version_info
+    if version_info < (1, 5, 0):
+        print("Aktualizacja modułu pyglet...")
+        os.system("python -m pip install --upgrade pyglet")
+except ImportError:
+    pass
+
+from pyglet.gl import *
 
 # Stałe
 TIMEOUT = 0.5
@@ -134,4 +154,4 @@ def personal_data_scan(target_url):
         response = requests.get(target_url)
         soup = BeautifulSoup(response.text, 'html.parser')
         for key, pattern in patterns.items():
-            matches =
+            matches = re.findall(pattern, response.text)
