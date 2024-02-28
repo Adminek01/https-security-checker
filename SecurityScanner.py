@@ -15,7 +15,7 @@ import os
 import sys
 
 # Stałe
-TIMEOUT = 5  # Zwiększenie timeoutu do 5 sekund
+TIMEOUT = 10  # Zwiększenie timeoutu do 10 sekund
 
 # Lista serwerów DNS (możesz dowolnie zmieniać lub dodawać inne)
 DNS_SERVERS = ['1.1.1.1', '1.0.0.1', '8.8.8.8', '8.8.4.4']
@@ -106,8 +106,15 @@ if __name__ == "__main__":
         logging.error("No target specified.")
         sys.exit(1)
 
+    # Ustawienie losowego adresu IP za pomocą proxy lub VPN
+    # (do implementacji przez Ciebie)
+
+    # Zmniejszenie zakresu portów do skanowania
+    start_port = 1
+    end_port = 1024
+
     # Wywołanie funkcji asynchronicznej do skanowania portów
-    ports = asyncio.run(scan_ports(target, 1, 1024))
+    ports = asyncio.run(scan_ports(target, start_port, end_port))
     print(f"Open ports on {target}: {ports}")
 
     # Testowanie strony HTTP lub HTTPS
