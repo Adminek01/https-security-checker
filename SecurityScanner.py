@@ -141,5 +141,20 @@ def personal_data_scan(target_url):
         # Ustaw adres IP serwera DNS jako parametr dns
         response = requests.get(target_url, dns=(dns_server, dns_server))
         soup = BeautifulSoup(response.text, 'html.parser')
+        found_data = {}
+
         for key, pattern in patterns.items():
-            matches =
+            matches = soup.find_all(text=re.compile(pattern))
+            if matches:
+                found_data[key] = [match.strip() for match in matches]
+
+        if found_data:
+            logging.info("Personal data found on the target website:")
+            for category, data in found_data.items():
+                logging.info(f"{category}: {data}")
+        else:
+            logging.info("No personal data found on the target website.")
+
+    except Exception as e:
+        logging.error(f"An error occurred during personal data scan: {e}")
+
