@@ -22,10 +22,21 @@ DNS_SERVERS = ['1.1.1.1', '1.0.0.1', '8.8.8.8', '8.8.4.4']
 # Inicjalizacja loggera
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+def validate_ip_address(ip):
+    """
+    Funkcja do walidacji adresu IP przy użyciu modułu re.
+    """
+    pattern = r'^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
+    return re.match(pattern, ip) is not None
+
 async def scan_ports(target, start_port, end_port):
     """
     Funkcja asynchronicznie skanująca porty na podanym adresie IP w danym zakresie.
     """
+    if not validate_ip_address(target):
+        logging.error("Invalid IP address.")
+        return []
+
     open_ports = []
     for port in range(start_port, end_port + 1):
         try:
@@ -43,6 +54,10 @@ async def ddos_attack(target, num_requests=None):
     """
     Funkcja asynchronicznie przeprowadzająca atak DDoS na podany cel.
     """
+    if not validate_ip_address(target):
+        logging.error("Invalid IP address.")
+        return
+
     num_requests = num_requests or random.randint(100, 1000)
 
     async def send_request():
@@ -160,52 +175,36 @@ async def personal_data_scan(target_url):
         logging.error(f"An error occurred during personal data scan: {e}")
 
 async def check_email(email):
+    """
+    Funkcja asynchronicznie sprawdzająca adres e-mail przy użyciu modułu holehe.
+    """
     results = []
     async with aiohttp.ClientSession() as client:
         await rocketreach(email, client, results)
         # Dodaj więcej funkcji z holehe, jeśli chcesz sprawdzać na innych platformach
     return results
 
-async def main():
+def send_icmp_packets(target, num_packets):
+    """
+    Funkcja wysyłająca pakiety ICMP do celu.
+    """
+    if not validate_ip_address(target):
+        logging.error("Invalid IP address.")
+        return
+
+    for _ in range(num_packets):
+        pkt = IP(dst=target)/ICMP()
+        send(pkt)
+
+def main():
     parser = argparse.ArgumentParser(description='Tool for ethical hacking purposes.')
     parser.add_argument('-t', '--target', dest='target', help='Target IP address or URL')
-    parser.add_argument('-sp', '--start-port', dest='start_port', type=int, default=1, help='Start port for scanning')
-    parser.add_argument('-ep', '--end-port', dest='end_port', type=int, default=1000, help='End port for scanning')
-    parser.add_argument('-nr', '--num-requests', dest='num_requests', type=int, help='Number of requests for DDoS attack')
-    parser.add_argument('-pf', '--passwords-file', dest='passwords_file', help='File containing passwords for brute force')
-    parser.add_argument('-sf', '--sql-file', dest='sql_file', help='File containing SQL queries for SQL injection')
-    parser.add_argument('-u', '--url', dest='url', help='URL for personal data scan or SQL injection')
+    # Dodaj więcej argumentów według potrzeb
     args = parser.parse_args()
 
     if args.target:
-        open_ports = await scan_ports(args.target, args.start_port, args.end_port)
-        print("Open ports:", open_ports)
-
-    if args.num_requests:
-        await ddos_attack(args.target, args.num_requests)
-
-    if args.passwords_file:
-        await brute_force(args.target, args.passwords_file)
-
-    if args.sql_file and args.url:
-        await sql_injection(args.url, args.sql_file)
-
-    if args.url:
-        await personal_data_scan(args.url)
-
-    if args.url:
-        results = await check_email(args.url)
-        print("Results:", results)
-
-    # Tworzenie i wysyłanie pakietów sieciowych przy użyciu Scapy
-    if args.target:
-        packet = IP(dst=args.target)/TCP(dport=80)
-        response = sr1(packet, timeout=2, verbose=False)
-        if response:
-            logging.info("Received response for the packet:")
-            logging.info(response.summary())
-        else:
-            logging.warning("No response received for the packet.")
+        target = args.target
+        # Wywołaj odpowiednie funkcje w zależności od celu
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
