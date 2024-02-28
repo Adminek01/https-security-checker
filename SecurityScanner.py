@@ -7,8 +7,10 @@ import argparse
 import logging
 import random
 import os
+import asyncio
 from bs4 import BeautifulSoup
-import sys
+from holehe.core import *
+from holehe.localuseragent import *
 
 # Stałe
 TIMEOUT = 0.5
@@ -158,3 +160,17 @@ def personal_data_scan(target_url):
     except Exception as e:
         logging.error(f"An error occurred during personal data scan: {e}")
 
+async def check_email(email):
+    results = []
+    async with aiohttp.ClientSession() as client:
+        await rocketreach(email, client, results)
+        # Dodaj więcej funkcji z holehe, jeśli chcesz sprawdzać na innych platformach
+    return results
+
+async def main():
+    email = "example@example.com"
+    results = await check_email(email)
+    print("Results:", results)
+
+if __name__ == "__main__":
+    asyncio.run(main())
