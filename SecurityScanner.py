@@ -14,6 +14,9 @@ import random
 import os
 import tkinter as tk
 
+# Ustawienie zmiennej DISPLAY przed uruchomieniem programu
+os.environ["DISPLAY"] = ":0.0"
+
 def create_toolbar(window):
     toolbar = tk.Frame(window)
 
@@ -27,9 +30,14 @@ def create_toolbar(window):
     toolbar.pack(side=tk.TOP, fill=tk.X)
 
 def main():
-    window = tk.Tk()
+    try:
+        window = tk.Tk()
+    except tk.TclError as e:
+        logging.error(f"TclError: {e}")
+        return
+
     window.title("Ethical Hacking Tool")
-    
+
     menu = tk.Menu(window)
     file_menu = tk.Menu(menu, tearoff=0)
     file_menu.add_command(label="Nowy")
