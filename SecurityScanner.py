@@ -12,48 +12,6 @@ import argparse
 import logging
 import random
 import os
-import tkinter as tk
-
-# Ustawienie zmiennej DISPLAY przed uruchomieniem programu
-os.environ["DISPLAY"] = ":0.0"
-
-def create_toolbar(window):
-    toolbar = tk.Frame(window)
-
-    # Ikona otwierania
-    open_icon = tk.PhotoImage(file="open.png")
-    open_button = tk.Button(toolbar, image=open_icon)
-    open_button.pack(side=tk.LEFT)
-
-    # Dodaj więcej przycisków z ikonami tutaj
-
-    toolbar.pack(side=tk.TOP, fill=tk.X)
-
-def main():
-    try:
-        window = tk.Tk()
-    except tk.TclError as e:
-        logging.error(f"TclError: {e}")
-        return
-
-    window.title("Ethical Hacking Tool")
-
-    menu = tk.Menu(window)
-    file_menu = tk.Menu(menu, tearoff=0)
-    file_menu.add_command(label="Nowy")
-    file_menu.add_command(label="Otwórz")
-    file_menu.add_command(label="Zapisz")
-    file_menu.add_separator()
-    file_menu.add_command(label="Zamknij")
-    menu.add_cascade(label="Plik", menu=file_menu)
-    window.config(menu=menu)
-
-    create_toolbar(window)
-
-    window.mainloop()
-
-if __name__ == "__main__":
-    main()
 
 # Stałe
 TIMEOUT = 0.5
