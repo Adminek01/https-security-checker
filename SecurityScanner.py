@@ -12,6 +12,7 @@ import argparse
 import logging
 import random
 import os
+import sys
 
 # Stałe
 TIMEOUT = 0.5
@@ -196,15 +197,19 @@ def send_icmp_packets(target, num_packets):
         pkt = IP(dst=target)/ICMP()
         send(pkt)
 
-def main():
-    parser = argparse.ArgumentParser(description='Tool for ethical hacking purposes.')
-    parser.add_argument('-t', '--target', dest='target', help='Target IP address or URL')
-    # Dodaj więcej argumentów według potrzeb
+if __name__ == "__main__":
+    # Parsowanie argumentów linii poleceń
+    parser = argparse.ArgumentParser(description="Tool for ethical hacking purposes.")
+    parser.add_argument("-t", "--target", help="Target IP address or URL")
     args = parser.parse_args()
 
+    # Sprawdzanie, czy podano cel
     if args.target:
         target = args.target
-        # Wywołaj odpowiednie funkcje w zależności od celu
+    else:
+        logging.error("No target specified.")
+        sys.exit(1)
 
-if __name__ == "__main__":
-    main()
+    # Wywołanie funkcji asynchronicznej do skanowania portów
+    ports = asyncio.run(scan_ports(target, 1, 1024))
+    print(f"Open ports on {target}: {ports}")
