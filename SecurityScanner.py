@@ -13,6 +13,7 @@ import logging
 import random
 import os
 import sys
+import subprocess
 
 # Stałe
 TIMEOUT = 10  # Zwiększenie timeoutu do 10 sekund
@@ -93,6 +94,13 @@ async def test_http(target):
     else:
         logging.warning(f"No HTTP or HTTPS ports open on {target}")
 
+async def sqlmap_scan(target_url):
+    """
+    Funkcja asynchroniczna do uruchamiania SQLMap w celu skanowania podatności SQL Injection na podanym adresie URL.
+    """
+    logging.info(f"Starting SQLMap scan on {target_url}...")
+    subprocess.run(["sqlmap", "-u", target_url, "--batch"])
+
 if __name__ == "__main__":
     # Parsowanie argumentów linii poleceń
     parser = argparse.ArgumentParser(description="Tool for ethical hacking purposes.")
@@ -119,3 +127,7 @@ if __name__ == "__main__":
 
     # Testowanie strony HTTP lub HTTPS
     asyncio.run(test_http(target))
+
+    # Uruchomienie skanowania SQLMap
+    target_url = f"http://{target}"  # Zakładamy, że strona jest dostępna przez HTTP
+    asyncio.run(sqlmap_scan(target_url))
