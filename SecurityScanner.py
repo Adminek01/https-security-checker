@@ -251,4 +251,4 @@ if __name__ == "__main__":
     print(f"Open ports on {target}: {ports}")
 
     # Testowanie strony HTTP lub HTTPS
-    await test_http(target)
+    asyncio.run(test_http(target))
