@@ -197,6 +197,42 @@ def send_icmp_packets(target, num_packets):
         pkt = IP(dst=target)/ICMP()
         send(pkt)
 
+async def test_http(target):
+    """
+    Funkcja asynchronicznie testująca stronę HTTP lub HTTPS na podanym celu.
+    """
+    if not validate_ip_address(target):
+        logging.error("Invalid IP address.")
+        return
+
+    # Skanowanie portów 80 i 443
+    ports = await scan_ports(target, 80, 443)
+    logging.info(f"Scanned ports on {target}: {ports}")
+
+    # Sprawdzanie, czy są otwarte porty HTTP lub HTTPS
+    if 80 in ports or 443 in ports:
+        # Wybieranie protokołu HTTP lub HTTPS
+        protocol = "https" if 443 in ports else "http"
+        # Tworzenie adresu URL
+        url = f"{protocol}://{target}"
+        # Wykonywanie żądania HTTP lub HTTPS
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=TIMEOUT) as response:
+                    # Sprawdzanie statusu odpowiedzi
+                    if response.status == 200:
+                        # Odczytywanie treści odpowiedzi
+                        content = await response.text()
+                        # Wypisywanie treści odpowiedzi
+                        print(f"HTTP response from {url}:")
+                        print(content)
+                    else:
+                        logging.error(f"HTTP error from {url}: {response.status}")
+        except aiohttp.ClientError as e:
+            logging.error(f"HTTP request failed: {e}")
+    else:
+        logging.warning(f"No HTTP or HTTPS ports open on {target}")
+
 if __name__ == "__main__":
     # Parsowanie argumentów linii poleceń
     parser = argparse.ArgumentParser(description="Tool for ethical hacking purposes.")
@@ -213,3 +249,6 @@ if __name__ == "__main__":
     # Wywołanie funkcji asynchronicznej do skanowania portów
     ports = asyncio.run(scan_ports(target, 1, 1024))
     print(f"Open ports on {target}: {ports}")
+
+    # Testowanie strony HTTP lub HTTPS
+    await test_http(target)
