@@ -66,6 +66,9 @@ async def test_http(target):
             logging.error("Invalid IP address or domain name.")
             return
 
+    # Ustawienie limitu czasu na 30 sekund
+    timeout = aiohttp.ClientTimeout(total=30)
+
     # Skanowanie portów 80 i 443
     ports = await scan_ports(target, 80, 443)
     logging.info(f"Scanned ports on {target}: {ports}")
@@ -78,8 +81,8 @@ async def test_http(target):
         url = f"{protocol}://{target}"
         # Wykonywanie żądania HTTP lub HTTPS
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=TIMEOUT) as response:
+            async with aiohttp.ClientSession(timeout=timeout) as session:
+                async with session.get(url) as response:
                     # Sprawdzanie statusu odpowiedzi
                     if response.status == 200:
                         # Odczytywanie treści odpowiedzi
@@ -91,6 +94,9 @@ async def test_http(target):
                         logging.error(f"HTTP error from {url}: {response.status}")
         except aiohttp.ClientError as e:
             logging.error(f"HTTP request failed: {e}")
+        except asyncio.TimeoutError:
+            logging.warning("Timeout occurred while making HTTP request. Retrying or cancelling request.")
+            # Tutaj możesz dodać kod do ponowienia żądania lub anulowania go, w zależności od Twoich potrzeb.
     else:
         logging.warning(f"No HTTP or HTTPS ports open on {target}")
 
