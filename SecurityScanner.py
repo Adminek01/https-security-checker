@@ -261,14 +261,14 @@ def get_random_user_agent():
     # Zwraca ciąg znaków z agentem użytkownika
     return local_user_agent.generate_user_agent()
 
-def scan_network(ip, mask):
+async def scan_network(ip, mask):
     # Skanuje sieć pod kątem aktywnych hostów
     # Zwraca listę adresów IP aktywnych hostów
     active_hosts = []
     # Utworzenie zakresu adresów IP z podanego adresu i maski
     ip_range = ip + "/" + mask
     # Wykonanie skanowania ARP na podanym zakresie
-    arp_result = scapy.arping(ip_range, verbose=False)
+    arp_result = await scapy.arping(ip_range, verbose=False)
     # Iteracja po wynikach
     for sent, received in arp_result[0]:
         # Dodanie adresu IP odbiorcy do listy aktywnych hostów
