@@ -34,7 +34,7 @@ def scan_ports(ip, start, end):
         s.close()
     return open_ports
 
-def test_website(url, session):
+async def test_website(url, session):
     # Testuje stronę internetową pod kątem podatności
     # Zwraca słownik z informacjami o stronie
     website_info = {}
