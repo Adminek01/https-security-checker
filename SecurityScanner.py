@@ -8,7 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import holehe
-import random_user_agent  # Dodano import modułu random_user_agent
+from random_user_agent.user_agent import UserAgent  # Poprawiony import modułu random_user_agent
 import paramiko
 
 # Definiowanie funkcji pomocniczych
