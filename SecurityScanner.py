@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import holehe
 import local_user_agent
-import paramiko  # Dodane importowane biblioteki
+import paramiko
 
 # Definiowanie funkcji pomocniczych
 
@@ -45,19 +45,16 @@ async def test_website(url, session):
     return website_info
 
 async def test_xss(url, session):
-    # Symulacja testu podatności na XSS
-    # Zwraca listę parametrów podatnych na XSS
-    pass  # Tutaj należy umieścić kod testu XSS
+    # Tutaj można umieścić kod testu XSS
+    pass
 
 async def test_csrf(url, session):
-    # Symulacja testu podatności na CSRF
-    # Zwraca prawdę lub fałsz
-    pass  # Tutaj należy umieścić kod testu CSRF
+    # Tutaj można umieścić kod testu CSRF
+    pass
 
 async def test_sql(url, session):
-    # Symulacja testu podatności na SQL Injection
-    # Zwraca listę parametrów podatnych na SQL Injection
-    pass  # Tutaj należy umieścić kod testu SQL Injection
+    # Tutaj można umieścić kod testu SQL Injection
+    pass
 
 async def get_content(url, session):
     try:
@@ -74,42 +71,70 @@ async def scan_network(ip, mask):
         active_hosts.append(received.psrc)
     return active_hosts
 
+def get_user_info(email):
+    user_info = {}
+    client = holehe.core.holehe()
+    platforms = ["facebook", "twitter", "instagram", "linkedin"]
+    for platform in platforms:
+        result = client.get(email, platform)
+        if result["found"]:
+            user_info[platform] = result["data"]
+    return user_info
+
 def run_sqlmap(url):
-    # Symulacja uruchomienia narzędzia SQLMap
-    # Zwraca wynik wykonania narzędzia
-    pass  # Tutaj należy umieścić kod uruchomienia SQLMap
+    result = ""
+    command = ["sqlmap", "-u", url, "--batch", "--dump-all"]
+    process = subprocess.run(command, capture_output=True, text=True)
+    if process.returncode == 0:
+        result += process.stdout
+    else:
+        result += process.stderr
+    return result
 
 def automate_browser(url, driver):
-    # Symulacja automatyzacji przeglądarki internetowej
-    # Zwraca prawdę lub fałsz w zależności od powodzenia operacji
-    pass  # Tutaj należy umieścić kod automatyzacji przeglądarki
+    success = False
+    try:
+        driver.get(url)
+        login = driver.find_element_by_id("login")
+        login.send_keys("user@example.com")
+        password = driver.find_element_by_id("password")
+        password.send_keys("secret")
+        submit = driver.find_element_by_id("submit")
+        submit.click()
+        wait = WebDriverWait(driver, 10)
+        welcome = wait.until(EC.presence_of_element_located((By.ID, "welcome")))
+        if "user" in welcome.text:
+            success = True
+    except Exception as e:
+        print(e)
+    return success
 
 # Definiowanie głównej funkcji programu
 
 async def main():
     async with aiohttp.ClientSession(headers={"User-Agent": local_user_agent.generate_user_agent()}) as session:
         driver = webdriver.Chrome()
-        
+
         domain = "example.com"
         url = "http://example.com/login.php"
         email = "user@example.com"
         ip = "192.168.1.1"
         mask = "24"
-        
+
         print(get_ip_from_domain(domain))
         print(scan_ports(ip, 1, 1024))
-        
+
         website_info = await test_website(url, session)
         print(website_info)
-        
+
         content = await get_content(url, session)
         print(content)
-        
+
         print(get_user_info(email))
-        
+
         active_hosts = await scan_network(ip, mask)
         print(active_hosts)
-        
+
         print(run_sqlmap(url))
         print(automate_browser(url, driver))
 
