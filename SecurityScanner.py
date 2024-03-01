@@ -319,7 +319,7 @@ def automate_browser(url, driver):
 
 # Definiowanie głównej funkcji programu
 
-def main():
+async def main():
     # Utworzenie sesji asynchronicznej z losowym agentem użytkownika
     session = aiohttp.ClientSession(headers={"User-Agent": get_random_user_agent()})
     # Utworzenie sterownika przeglądarki internetowej
@@ -336,21 +336,22 @@ def main():
     # Wyświetlenie otwartych portów na adresie IP
     print(scan_ports(ip, 1, 1024))
     # Wyświetlenie informacji o stronie internetowej
-    print(test_website(url, session))
+    print(await test_website(url, session))  # Użycie await tutaj
     # Wyświetlenie zawartości strony internetowej
     print(get_content(url, session))
     # Wyświetlenie informacji o użytkowniku
     print(get_user_info(email))
     # Wyświetlenie aktywnych hostów w sieci
-    print(scan_network(ip, mask))
+    print(await scan_network(ip, mask))  # Użycie await tutaj
     # Wyświetlenie wyniku uruchomienia SQLMap
     print(run_sqlmap(url))
     # Wyświetlenie wyniku automatyzacji przeglądarki
     print(automate_browser(url, driver))
     # Zamknięcie sesji i sterownika
-    session.close()
+    await session.close()  # Użycie await tutaj
     driver.quit()
 
 # Wywołanie głównej funkcji programu
 if __name__ == "__main__":
-    main()
+    import asyncio
+    asyncio.run(main())
