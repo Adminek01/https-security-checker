@@ -19,10 +19,10 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 
 # Stałe
-TIMEOUT = 10  # Zwiększenie timeoutu do 10 sekund
+TIMEOUT = 30  # Zwiększenie timeoutu do 30 sekund
 
 # Lista serwerów DNS (możesz dowolnie zmieniać lub dodawać inne)
-DNS_SERVERS = ['1.1.1.1', '1.0.0.1', '8.8.8.8', '8.8.4.4']
+DNS_SERVERS = ['8.8.8.8', '8.8.4.4']
 
 # Inicjalizacja loggera
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
