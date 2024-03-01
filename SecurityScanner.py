@@ -321,35 +321,42 @@ def automate_browser(url, driver):
 
 async def main():
     # Utworzenie sesji asynchronicznej z losowym agentem użytkownika
-    session = aiohttp.ClientSession(headers={"User-Agent": get_random_user_agent()})
-    # Utworzenie sterownika przeglądarki internetowej
-    driver = webdriver.Chrome()
-    # Przykładowe użycie funkcji programu
-    # Zmienne do testowania
-    domain = "example.com"
-    url = "http://example.com/login.php"
-    email = "user@example.com"
-    ip = "192.168.1.1"
-    mask = "24"
-    # Wyświetlenie adresu IP z nazwy domeny
-    print(get_ip_from_domain(domain))
-    # Wyświetlenie otwartych portów na adresie IP
-    print(scan_ports(ip, 1, 1024))
-    # Wyświetlenie informacji o stronie internetowej
-    print(await test_website(url, session))  # Użycie await tutaj
-    # Wyświetlenie zawartości strony internetowej
-    print(get_content(url, session))
-    # Wyświetlenie informacji o użytkowniku
-    print(get_user_info(email))
-    # Wyświetlenie aktywnych hostów w sieci
-    print(await scan_network(ip, mask))  # Użycie await tutaj
-    # Wyświetlenie wyniku uruchomienia SQLMap
-    print(run_sqlmap(url))
-    # Wyświetlenie wyniku automatyzacji przeglądarki
-    print(automate_browser(url, driver))
-    # Zamknięcie sesji i sterownika
-    await session.close()  # Użycie await tutaj
-    driver.quit()
+    async with aiohttp.ClientSession(headers={"User-Agent": get_random_user_agent()}) as session:
+        # Utworzenie sterownika przeglądarki internetowej
+        driver = webdriver.Chrome()
+        
+        # Przykładowe użycie funkcji programu
+        domain = "example.com"
+        url = "http://example.com/login.php"
+        email = "user@example.com"
+        ip = "192.168.1.1"
+        mask = "24"
+        
+        # Wyświetlenie adresu IP z nazwy domeny
+        print(get_ip_from_domain(domain))
+        
+        # Wyświetlenie otwartych portów na adresie IP
+        print(scan_ports(ip, 1, 1024))
+        
+        # Wyświetlenie informacji o stronie internetowej
+        website_info = await test_website(url, session)
+        print(website_info)
+        
+        # Wyświetlenie zawartości strony internetowej
+        print(get_content(url, session))
+        
+        # Wyświetlenie informacji o użytkowniku
+        print(get_user_info(email))
+        
+        # Wyświetlenie aktywnych hostów w sieci
+        active_hosts = await scan_network(ip, mask)
+        print(active_hosts)
+        
+        # Wyświetlenie wyniku uruchomienia SQLMap
+        print(run_sqlmap(url))
+        
+        # Wyświetlenie wyniku automatyzacji przeglądarki
+        print(automate_browser(url, driver))
 
 # Wywołanie głównej funkcji programu
 if __name__ == "__main__":
