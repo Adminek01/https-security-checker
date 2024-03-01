@@ -2,14 +2,13 @@ import socket
 import aiohttp
 import bs4
 import scapy.all as scapy
-import local_user_agent
 import subprocess
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import holehe
-import local_user_agent
+import random_user_agent  # Dodano import modułu random_user_agent
 import paramiko
 
 # Definiowanie funkcji pomocniczych
@@ -113,7 +112,9 @@ def automate_browser(url, driver):
 # Definiowanie głównej funkcji programu
 
 async def main():
-    async with aiohttp.ClientSession(headers={"User-Agent": local_user_agent.generate_user_agent()}) as session:
+    user_agent_rotator = random_user_agent.UserAgent()  # Utworzenie obiektu UserAgent
+    user_agent = user_agent_rotator.get_random_user_agent()  # Pobranie losowego nagłówka User-Agent
+    async with aiohttp.ClientSession(headers={"User-Agent": user_agent}) as session:
         driver = webdriver.Chrome()
 
         domain = "example.com"
