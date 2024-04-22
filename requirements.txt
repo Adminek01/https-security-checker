@@ -1,36 +1,8 @@
-import subprocess
+aiohttp
+bs4
+holehe
+local_user_agent
+scapy
+requests
+selenium
 
-def install_requirements():
-    try:
-        subprocess.run(["pip", "install", "-r", "requirements.txt"], check=True)
-        print("Dependencies installed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error occurred while installing dependencies: {e}")
-
-def import_modules():
-    try:
-        import socket
-        import aiohttp
-        import asyncio
-        import threading
-        import paramiko
-        import re
-        from bs4 import BeautifulSoup
-        from holehe.core import *
-        from holehe.localuseragent import *
-        from scapy.all import *
-        import argparse
-        import logging
-        import random
-        import os
-        import sys
-        from selenium import webdriver
-        from selenium.webdriver.common.keys import Keys
-        from selenium.webdriver.firefox.options import Options
-        print("Modules imported successfully.")
-    except ImportError as e:
-        print(f"Error occurred while importing modules: {e}")
-
-if __name__ == "__main__":
-    install_requirements()
-    import_modules()
