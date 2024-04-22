@@ -1,15 +1,18 @@
+import os
+import sys
+import subprocess
 import socket
 import aiohttp
 import bs4
 import holehe
-import local_user_agent
 import scapy.all as scapy
-import subprocess
+import requests
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from fake_useragent import UserAgent
 
 async def test_website(url, session):
     website_info = {}
@@ -94,8 +97,8 @@ async def get_user_info(email):
     return user_info
 
 def get_random_user_agent():
-    lua = local_user_agent.LocalUserAgent()
-    return lua.random()
+    ua = UserAgent()
+    return ua.random
 
 async def scan_network(ip, mask):
     active_hosts = []
@@ -154,7 +157,28 @@ async def check_https_security(url):
     except requests.exceptions.RequestException as e:
         print(f"Wystąpił błąd podczas sprawdzania URL '{url}': {str(e)}")
 
-async def main():
+def install_requirements():
+    requirements = ["aiohttp", "bs4", "holehe", "fake-useragent", "scapy", "requests", "selenium"]
+    missing_packages = []
+
+    for package in requirements:
+        try:
+            __import__(package)
+        except ImportError:
+            missing_packages.append(package)
+
+    if missing_packages:
+        print("Instalowanie brakujących bibliotek:")
+        for package in missing_packages:
+            print(f"- {package}")
+
+        user_input = input("Czy chcesz zainstalować brakujące biblioteki? (t/n) ")
+
+        if user_input.lower() == "t":
+            subprocess.check_call([sys.executable, "-m", "pip", "install"] + missing_packages)
+
+if __name__ == "__main__":
+    install_requirements()
     session = aiohttp.ClientSession(headers={"User-Agent": get_random_user_agent()})
     driver = webdriver.Chrome()
     domain = "example.com"
@@ -171,7 +195,3 @@ async def main():
     await check_https_security(url)
     await session.close()
     driver.quit()
-
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
