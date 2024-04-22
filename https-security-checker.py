@@ -24,6 +24,16 @@ options.add_argument("--headless")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 
+# Define install_requirements function
+def install_requirements():
+    try:
+        with open('requirements.txt', 'r') as file:
+            requirements = file.read().splitlines()
+        for requirement in requirements:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", requirement])
+    except Exception as e:
+        print(f"An error occurred while installing requirements: {e}")
+
 # Define the missing functions here, e.g., test_website, get_content, get_user_info, scan_network, run_sqlmap, automate_browser, check_https_security
 # Make sure to install the necessary libraries for these functions
 
@@ -47,6 +57,5 @@ async def main():
     driver.quit()
 
 if __name__ == "__main__":
-    # Define install_requirements function here
     install_requirements()
     asyncio.run(main())
