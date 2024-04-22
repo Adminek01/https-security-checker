@@ -127,6 +127,33 @@ async def automate_browser(url, driver):
     except Exception as e:
         return False
 
+async def check_https_security(url):
+    try:
+        parsed_url = urlparse(url)
+        if parsed_url.scheme != 'https':
+            print(f"URL '{url}' nie jest chronione protokołem HTTPS.")
+            return
+
+        response = requests.get(url)
+        cert = response.cert
+
+        if not cert:
+            print(f"URL '{url}' nie posiada prawidłowego certyfikatu SSL.")
+            return
+
+        context = ssl.create_default_context()
+        context.check_hostname = True
+        context.verify_mode = ssl.CERT_REQUIRED
+
+        with requests.Session() as session:
+            session.verify = cert
+            session.request("GET", url, verify=context)
+
+        print(f"URL '{url}' jest bezpieczne i posiada prawidłowy certyfikat SSL.")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Wystąpił błąd podczas sprawdzania URL '{url}': {str(e)}")
+
 async def main():
     session = aiohttp.ClientSession(headers={"User-Agent": get_random_user_agent()})
     driver = webdriver.Chrome()
@@ -141,6 +168,7 @@ async def main():
     print(await scan_network(ip, mask))
     print(run_sqlmap(url))
     print(await automate_browser(url, driver))
+    await check_https_security(url)
     await session.close()
     driver.quit()
 
