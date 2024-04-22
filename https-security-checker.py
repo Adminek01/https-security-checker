@@ -15,6 +15,9 @@ from selenium.webdriver.common.by import By
 from fake_useragent import UserAgent
 import asyncio
 
+# Specify the path of the ChromeDriver binary
+CHROMEDRIVER_PATH = '/usr/local/bin/chromedriver'
+
 async def test_website(url, session):
     website_info = {}
     try:
@@ -115,7 +118,6 @@ def run_sqlmap(url):
         return result.stdout
     except Exception as e:
         return str(e)
-
 async def automate_browser(url, driver):
     try:
         driver.get(url)
@@ -180,7 +182,8 @@ def install_requirements():
 
 async def main():
     session = aiohttp.ClientSession(headers={"User-Agent": get_random_user_agent()})
-    driver = webdriver.Chrome()
+    # Initialize the ChromeDriver with the specified path
+    driver = webdriver.Chrome(CHROMEDRIVER_PATH)
     domain = "example.com"
     url = "http://example.com/login.php"
     email = "user@example.com"
