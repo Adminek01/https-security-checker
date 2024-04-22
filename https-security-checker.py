@@ -13,6 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from fake_useragent import UserAgent
+import asyncio
 
 async def test_website(url, session):
     website_info = {}
@@ -177,8 +178,7 @@ def install_requirements():
         if user_input.lower() == "t":
             subprocess.check_call([sys.executable, "-m", "pip", "install"] + missing_packages)
 
-if __name__ == "__main__":
-    install_requirements()
+async def main():
     session = aiohttp.ClientSession(headers={"User-Agent": get_random_user_agent()})
     driver = webdriver.Chrome()
     domain = "example.com"
@@ -195,3 +195,7 @@ if __name__ == "__main__":
     await check_https_security(url)
     await session.close()
     driver.quit()
+
+if __name__ == "__main__":
+    install_requirements()
+    asyncio.run(main())
