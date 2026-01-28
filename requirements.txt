@@ -1,8 +1,0 @@
-aiohttp
-bs4
-holehe
-local_user_agent
-scapy
-requests
-selenium
-
