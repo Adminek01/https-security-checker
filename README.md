@@ -1,6 +1,6 @@
 HTTPS Security Checker v2.0
 Narzędzie do testowania bezpieczeństwa stron WWW - zaktualizowane dla Python 3.13 i Selenium 4.x
-
+ 
 🚀 Funkcje
 ✅ Testowanie dostępności strony
 🔒 Analiza certyfikatów SSL/TLS
